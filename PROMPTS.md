@@ -128,3 +128,35 @@ PR 1 looks good. start PR2. you can merge PR1
 ```
 PR2 LGTM. Tested the endpoints.  start the frontend scaffold
 ```
+
+## 5. Dev server error report
+
+```
+lets stop here for now. I am getting an error while I am trying to build the web app. can you have a look?
+
+> calculator-frontend@0.0.0 dev
+> vite # with the backend running on :8080, /api is proxied
+
+CACError: Unused args: `with`, `the`, `backend`, `running`, `on`, `:8080,`, `/api`, `is`, `proxied`
+(stack trace omitted)
+```
+
+## 6. Merge PR 2 and PR 3, start PR 4
+
+```
+ok great. The frontend foundations look OK to me. lets continue. you can merge PR2 and PR 3. Start PR 4.
+```
+
+Answers to the keypad questions: only ⌫ backspace (no ±), a single AC key, a second `=` does nothing, and the next key starts fresh after an error.
+
+## 7. PR 4 review
+
+```
+I left a comment in the PR4. OTT look great. please address the comment and come again for review
+```
+
+Review comment on `frontend/src/hooks/calculatorState.ts`:
+
+```
+this file is not a hook, please move it to another folder named like `state` instead of hooks. also move the test.
+```

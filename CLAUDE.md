@@ -56,3 +56,7 @@ When writing Go, explain the idioms and why they were chosen **in the chat**, no
 - Percent is unary: `x%` = `x / 100`.
 - UI: classic keypad, immediate execution (each binary op is one API call; chaining evaluates left to right).
 - Numbers are `float64`; the frontend only formats results for display.
+- Keypad extras: backspace (⌫) only, no ± key. A single AC key clears everything (Escape).
+- A second `=` after a result does nothing.
+- After an error, the next key press starts fresh.
+- Shell commands in docs/PR descriptions never contain inline `#` comments (they break in zsh).
