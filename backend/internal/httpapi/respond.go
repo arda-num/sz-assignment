@@ -15,6 +15,10 @@ func newAPIError(status int, code, message string) *apiError {
 	return &apiError{Status: status, Code: code, Message: message}
 }
 
+func internalError() *apiError {
+	return newAPIError(http.StatusInternalServerError, "internal_error", "internal server error")
+}
+
 func writeJSON(w http.ResponseWriter, status int, body any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
