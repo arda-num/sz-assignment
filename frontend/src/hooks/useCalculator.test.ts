@@ -76,6 +76,22 @@ describe('useCalculator', () => {
     expect(calculateMock).not.toHaveBeenCalled()
   })
 
+  it('exposes the pending operator until the operation is evaluated', async () => {
+    calculateMock.mockResolvedValue(5)
+    const { result, press, type } = setup()
+
+    expect(result.current.pendingOperator).toBeNull()
+
+    await press(...type('2'), add)
+    expect(result.current.pendingOperator).toBe('add')
+
+    await press(...type('3'))
+    expect(result.current.pendingOperator).toBe('add')
+
+    await press(equals)
+    expect(result.current.pendingOperator).toBeNull()
+  })
+
   it('deletes the last typed character on backspace', async () => {
     const { result, press } = setup()
 

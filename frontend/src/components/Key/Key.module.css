@@ -1,0 +1,73 @@
+.key {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 14px;
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--color-text);
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  transition:
+    background-color 120ms ease,
+    transform 80ms ease;
+}
+
+.key:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.key:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.key:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.digit {
+  background: var(--color-key);
+}
+
+.digit:hover:not(:disabled) {
+  background: var(--color-key-hover);
+}
+
+.function {
+  background: var(--color-function);
+  font-size: 22px;
+}
+
+.function:hover:not(:disabled) {
+  background: var(--color-function-hover);
+}
+
+.operator {
+  background: var(--color-operator);
+  color: var(--color-display);
+  font-size: 28px;
+}
+
+.operator:hover:not(:disabled) {
+  background: var(--color-operator-hover);
+}
+
+.key[aria-pressed='true'],
+.key[aria-pressed='true']:hover {
+  background: var(--color-text);
+  color: var(--color-operator-pressed);
+  font-weight: 600;
+}
+
+.wide {
+  grid-column: span 2;
+}
+
+.tall {
+  grid-row: span 2;
+}

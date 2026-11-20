@@ -1,0 +1,22 @@
+.calculator {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  border-radius: 20px;
+  background: var(--color-surface);
+  box-shadow: 0 20px 40px rgb(17 24 39 / 25%);
+  color: var(--color-text);
+}
+
+@media (max-width: 480px) {
+  .calculator {
+    max-width: none;
+    min-height: 100dvh;
+    padding: 24px 16px 28px;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}

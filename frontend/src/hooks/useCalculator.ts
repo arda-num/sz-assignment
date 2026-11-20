@@ -27,7 +27,25 @@ function toUserMessage(error: unknown): string {
   return GENERIC_ERROR
 }
 
-export function useCalculator() {
+export interface CalculatorActions {
+  inputDigit: (digit: Digit) => void
+  inputDecimal: () => void
+  backspace: () => void
+  clear: () => void
+  chooseOperator: (operator: BinaryOperation) => void
+  evaluate: () => void
+  applyUnary: (operation: UnaryOperation) => void
+}
+
+export interface Calculator extends CalculatorActions {
+  display: string
+  expression: string
+  pendingOperator: BinaryOperation | null
+  error: string | null
+  isLoading: boolean
+}
+
+export function useCalculator(): Calculator {
   const [state, dispatch] = useReducer(calculatorReducer, initialState)
   const controllerRef = useRef<AbortController | null>(null)
 
@@ -130,6 +148,7 @@ export function useCalculator() {
   return {
     display: selectDisplay(state),
     expression: selectExpression(state),
+    pendingOperator: state.pending?.operator ?? null,
     error: state.error,
     isLoading: state.isLoading,
     inputDigit,

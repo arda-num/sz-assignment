@@ -160,3 +160,15 @@ Review comment on `frontend/src/hooks/calculatorState.ts`:
 ```
 this file is not a hook, please move it to another folder named like `state` instead of hooks. also move the test.
 ```
+
+## 8. Merge PR 4, design artifact before PR 5
+
+```
+ok perfect. now merge PR4 but before we start PR 5. I want you to create me a claude artifact for the UI design you are gonna make. after my approval of the design, we will write the code
+```
+
+## 9. Design approved, start PR 5
+
+```
+ok great.  I approve the design, now lets start the implementation
+```
