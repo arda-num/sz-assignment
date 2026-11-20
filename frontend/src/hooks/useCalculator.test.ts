@@ -76,6 +76,16 @@ describe('useCalculator', () => {
     expect(calculateMock).not.toHaveBeenCalled()
   })
 
+  it('deletes the last typed character on backspace', async () => {
+    const { result, press } = setup()
+
+    await press(...type('12'), (calc) => {
+      calc.backspace()
+    })
+
+    expect(result.current.display).toBe('1')
+  })
+
   it('sends a binary operation on equals and shows the result', async () => {
     calculateMock.mockResolvedValue(5)
     const { result, press, type } = setup()
