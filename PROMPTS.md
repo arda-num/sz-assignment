@@ -195,3 +195,15 @@ I cannot open up the vite frontend. even though APP_PORT is 8090, the 8090 port 
 400 Bad Request
 Request Header Or Cookie Too Large
 ```
+
+## 13. Merge PR 6
+
+```
+yes now it works. lets merge PR 6 now
+```
+
+## 14. README with a demo recording
+
+```
+lets also add a video recording in the readme of the application with some use cases. after doing all, record the application and put it inside readme. THen I will review
+```
