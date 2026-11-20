@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   type CalculatorAction,
   type CalculatorState,
+  type Digit,
   calculatorReducer,
   initialState,
   MAX_INPUT_DIGITS,
@@ -14,14 +15,11 @@ function reduce(...actions: CalculatorAction[]): CalculatorState {
 }
 
 function typeNumber(text: string): CalculatorAction[] {
-  return [...text].map((char) =>
-    char === '.'
-      ? { type: 'decimalEntered' }
-      : {
-          type: 'digitEntered',
-          digit: char as '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9',
-        },
-  )
+  return text
+    .split('')
+    .map((char) =>
+      char === '.' ? { type: 'decimalEntered' } : { type: 'digitEntered', digit: char as Digit },
+    )
 }
 
 describe('calculatorReducer', () => {
