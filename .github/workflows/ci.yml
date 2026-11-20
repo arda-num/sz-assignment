@@ -102,3 +102,34 @@ jobs:
         with:
           name: frontend-coverage
           path: frontend/coverage
+
+  docker:
+    name: Docker images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Build images
+        run: docker compose build
+
+      - name: Start the stack
+        run: docker compose up -d
+
+      - name: Smoke test through nginx
+        run: |
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:8080/ > /dev/null && break
+            sleep 1
+          done
+          curl -sf http://localhost:8080/ | grep -q '<div id="root">'
+          curl -sf -X POST http://localhost:8080/api/v1/calculate \
+            -H 'Content-Type: application/json' \
+            -d '{"operation":"add","a":2,"b":3}' | grep -q '"result":5'
+
+      - name: Show logs on failure
+        if: failure()
+        run: docker compose logs
+
+      - name: Stop the stack
+        if: always()
+        run: docker compose down

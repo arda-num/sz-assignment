@@ -172,3 +172,17 @@ ok perfect. now merge PR4 but before we start PR 5. I want you to create me a cl
 ```
 ok great.  I approve the design, now lets start the implementation
 ```
+
+## 10. Merge PR 5, recap before PR 6
+
+```
+good good. I have made exhaustive tests in the frontend, could not find any problem. Both keyboard and click flows works fine. Now I want you to start PR 6 after merging PR 5. Before we start, remind me what was our plan so that I can verify we are on the same page
+```
+
+## 11. Docker decisions
+
+```
+1- A
+2- A, no need
+3- Yes lets put a docker image build checks in CI, Picking A
+```
