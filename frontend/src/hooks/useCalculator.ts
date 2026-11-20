@@ -9,7 +9,7 @@ import {
   initialState,
   selectDisplay,
   selectExpression,
-} from './calculatorState'
+} from '../state/calculatorState'
 
 const GENERIC_ERROR = 'Something went wrong. Please try again.'
 

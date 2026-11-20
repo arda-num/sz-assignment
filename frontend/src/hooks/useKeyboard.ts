@@ -1,6 +1,6 @@
 import { useEffect, useEffectEvent } from 'react'
 import type { BinaryOperation, UnaryOperation } from '../api/types'
-import type { Digit } from './calculatorState'
+import type { Digit } from '../state/calculatorState'
 
 export interface KeyboardActions {
   inputDigit: (digit: Digit) => void

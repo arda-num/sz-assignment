@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ApiError, calculate } from '../api/calculatorClient'
-import type { Digit } from './calculatorState'
+import type { Digit } from '../state/calculatorState'
 import { useCalculator } from './useCalculator'
 
 vi.mock('../api/calculatorClient', async (importOriginal) => ({
