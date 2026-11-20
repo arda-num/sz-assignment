@@ -116,3 +116,9 @@ Q2: Yes lets go with A again
 Q3: go with A, with the second design, I blieve it would be hard to support unary operations. 
 Q4: all three
 ```
+
+## 3. Approve PR 1, start PR 2
+
+```
+PR 1 looks good. start PR2. you can merge PR1
+```
