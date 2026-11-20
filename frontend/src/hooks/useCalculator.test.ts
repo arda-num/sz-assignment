@@ -15,10 +15,12 @@ type Calculator = ReturnType<typeof useCalculator>
 
 function deferred<T>() {
   let resolve!: (value: T) => void
-  const promise = new Promise<T>((res) => {
+  let reject!: (reason: unknown) => void
+  const promise = new Promise<T>((res, rej) => {
     resolve = res
+    reject = rej
   })
-  return { promise, resolve }
+  return { promise, resolve, reject }
 }
 
 function setup() {
@@ -213,7 +215,7 @@ describe('useCalculator', () => {
     await press(...type('2'), add, ...type('3'), equals)
     expect(result.current.isLoading).toBe(true)
 
-    await press(...type('7'), add, equals, (calc) => {
+    await press(...type('7.'), add, equals, sqrt, (calc) => {
       calc.backspace()
     })
     expect(calculateMock).toHaveBeenCalledOnce()
@@ -246,6 +248,46 @@ describe('useCalculator', () => {
       await request.promise
     })
     expect(result.current.display).toBe('0')
+  })
+
+  it('ignores a request that fails after it was cleared', async () => {
+    const request = deferred<number>()
+    calculateMock.mockReturnValue(request.promise)
+    const { result, press, type } = setup()
+
+    await press(...type('2'), add, ...type('3'), equals)
+    await press((calc) => {
+      calc.clear()
+    })
+
+    await act(async () => {
+      request.reject(new DOMException('The operation was aborted.', 'AbortError'))
+      await request.promise.catch(() => undefined)
+    })
+    expect(result.current.error).toBeNull()
+    expect(result.current.display).toBe('0')
+  })
+
+  it('applies a unary operation to the pending operand when no second operand was typed', async () => {
+    calculateMock.mockResolvedValueOnce(2.2360679775).mockResolvedValueOnce(7.2360679775)
+    const { result, press, type } = setup()
+
+    await press(...type('5'), add, sqrt)
+
+    expect(calculateMock).toHaveBeenLastCalledWith(
+      { operation: 'sqrt', a: 5 },
+      expect.any(AbortSignal),
+    )
+    expect(result.current.expression).toBe('5 +')
+    expect(result.current.display).toBe('2.2360679775')
+
+    await press(equals)
+
+    expect(calculateMock).toHaveBeenLastCalledWith(
+      { operation: 'add', a: 5, b: 2.2360679775 },
+      expect.any(AbortSignal),
+    )
+    expect(result.current.display).toBe('7.2360679775')
   })
 
   it('aborts the in-flight request on unmount', async () => {
