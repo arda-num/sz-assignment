@@ -1,6 +1,7 @@
 import { fireEvent, renderHook } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import { type KeyboardActions, useKeyboard } from './useKeyboard'
+import type { CalculatorActions } from './useCalculator'
+import { useKeyboard } from './useKeyboard'
 
 function setup() {
   const actions = {
@@ -11,7 +12,7 @@ function setup() {
     chooseOperator: vi.fn(),
     evaluate: vi.fn(),
     applyUnary: vi.fn(),
-  } satisfies KeyboardActions
+  } satisfies CalculatorActions
   const { unmount } = renderHook(() => {
     useKeyboard(actions)
   })

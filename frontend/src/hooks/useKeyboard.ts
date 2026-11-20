@@ -1,16 +1,7 @@
 import { useEffect, useEffectEvent } from 'react'
-import type { BinaryOperation, UnaryOperation } from '../api/types'
+import type { BinaryOperation } from '../api/types'
 import type { Digit } from '../state/calculatorState'
-
-export interface KeyboardActions {
-  inputDigit: (digit: Digit) => void
-  inputDecimal: () => void
-  backspace: () => void
-  clear: () => void
-  chooseOperator: (operator: BinaryOperation) => void
-  evaluate: () => void
-  applyUnary: (operation: UnaryOperation) => void
-}
+import type { CalculatorActions } from './useCalculator'
 
 const OPERATOR_KEYS: Partial<Record<string, BinaryOperation>> = {
   '+': 'add',
@@ -25,7 +16,7 @@ function isDigit(key: string): key is Digit {
   return /^[0-9]$/.test(key)
 }
 
-function handleKey(key: string, actions: KeyboardActions): boolean {
+function handleKey(key: string, actions: CalculatorActions): boolean {
   if (isDigit(key)) {
     actions.inputDigit(key)
     return true
@@ -64,7 +55,7 @@ function handleKey(key: string, actions: KeyboardActions): boolean {
   }
 }
 
-export function useKeyboard(actions: KeyboardActions): void {
+export function useKeyboard(actions: CalculatorActions): void {
   const onKeyDown = useEffectEvent((event: KeyboardEvent) => {
     if (event.ctrlKey || event.metaKey || event.altKey) {
       return
