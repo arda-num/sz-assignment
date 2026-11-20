@@ -122,3 +122,9 @@ Q4: all three
 ```
 PR 1 looks good. start PR2. you can merge PR1
 ```
+
+## 4. Approve PR 2, start the frontend scaffold
+
+```
+PR2 LGTM. Tested the endpoints.  start the frontend scaffold
+```
