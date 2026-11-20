@@ -186,3 +186,12 @@ good good. I have made exhaustive tests in the frontend, could not find any prob
 2- A, no need
 3- Yes lets put a docker image build checks in CI, Picking A
 ```
+
+## 12. nginx 400 on port 8090
+
+```
+I cannot open up the vite frontend. even though APP_PORT is 8090, the 8090 port gives me this error, cna you check?
+
+400 Bad Request
+Request Header Or Cookie Too Large
+```
