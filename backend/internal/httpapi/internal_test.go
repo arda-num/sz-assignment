@@ -50,3 +50,17 @@ func TestRecoverPanicsReturnsJSONErrorAndLogs(t *testing.T) {
 		t.Errorf("panic was not logged; logs: %s", logs.String())
 	}
 }
+
+func TestRecoverPanicsLetsAbortHandlerPropagate(t *testing.T) {
+	handler := recoverPanics(slog.New(slog.DiscardHandler), http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
+		panic(http.ErrAbortHandler)
+	}))
+
+	defer func() {
+		err, _ := recover().(error)
+		if !errors.Is(err, http.ErrAbortHandler) {
+			t.Errorf("recovered %v, want http.ErrAbortHandler", err)
+		}
+	}()
+	handler.ServeHTTP(httptest.NewRecorder(), httptest.NewRequest(http.MethodGet, "/", nil))
+}

@@ -19,7 +19,7 @@ func NewHandler(logger *slog.Logger) http.Handler {
 	mux.HandleFunc("/healthz", methodNotAllowed(http.MethodGet))
 	mux.HandleFunc("/", handleNotFound)
 
-	return logRequests(logger, mux)
+	return logRequests(logger, recoverPanics(logger, mux))
 }
 
 func handleHealth(w http.ResponseWriter, _ *http.Request) {
