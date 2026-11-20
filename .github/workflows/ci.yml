@@ -122,6 +122,7 @@ jobs:
             sleep 1
           done
           curl -sf http://localhost:8080/ | grep -q '<div id="root">'
+          curl -sf -o /dev/null -H "Cookie: big=$(head -c 10000 /dev/zero | tr '\0' a)" http://localhost:8080/
           curl -sf -X POST http://localhost:8080/api/v1/calculate \
             -H 'Content-Type: application/json' \
             -d '{"operation":"add","a":2,"b":3}' | grep -q '"result":5'
