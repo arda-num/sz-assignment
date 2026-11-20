@@ -26,6 +26,7 @@ When writing Go, explain the idioms and why they were chosen **in the chat**, no
 - TDD: write unit tests first, then implement. Test handlers with `httptest`.
 - Handle edge cases: division by zero, sqrt of negatives, overflow/Inf/NaN, broken JSON, missing fields, unknown operations, oversized bodies.
 - All errors use one JSON shape with the correct HTTP status: `{"error": {"code": "...", "message": "..."}}`.
+- Error messages are owned by the HTTP layer; never return internal error text, Go type names or stack traces to clients.
 - `gofmt` and `golangci-lint` must pass.
 
 ## Frontend (React)

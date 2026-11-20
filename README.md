@@ -77,7 +77,7 @@ curl -s -X POST localhost:8080/api/v1/calculate -H 'Content-Type: application/js
 ```
 
 ```json
-{ "error": { "code": "division_by_zero", "message": "division by zero" } }
+{ "error": { "code": "division_by_zero", "message": "cannot divide by zero" } }
 ```
 
 | Status | Codes                                                                                                        |
@@ -88,9 +88,9 @@ curl -s -X POST localhost:8080/api/v1/calculate -H 'Content-Type: application/js
 | 413    | `request_too_large` (body limit: 4 KB)                                                                       |
 | 415    | `unsupported_media_type` (`Content-Type` must be `application/json`)                                         |
 | 422    | `division_by_zero`, `invalid_domain` (e.g. `sqrt(-1)`), `result_out_of_range` (±Inf)                         |
-| 500    | `internal_error`                                                                                             |
+| 500    | `internal_error` (also returned for recovered panics)                                                        |
 
-400 means the request is malformed; 422 means the request is valid but the math is undefined.
+400 means the request is malformed; 422 means the request is valid but the math is undefined. Messages are written by the API layer: internal Go error text, type names and stack traces never reach clients (unexpected errors are logged server-side only).
 
 ### `GET /healthz`
 
