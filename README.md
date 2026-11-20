@@ -100,8 +100,8 @@ Returns `{"status":"ok"}`.
 
 | Layer    | Command                                       | Coverage                                       |
 | -------- | --------------------------------------------- | ---------------------------------------------- |
-| Backend  | `cd backend && go test -race -cover ./...`    | `calculator` 100%, `httpapi` 97.5%             |
-| Frontend | `cd frontend && npm run coverage`             | 141 tests, 100% lines, 97.7% branches          |
+| Backend  | `cd backend && go test -race -cover ./...`    | `calculator` 100%, `httpapi` 98.9%             |
+| Frontend | `cd frontend && npm run coverage`             | 100% line coverage                             |
 
 HTML reports:
 
