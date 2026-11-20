@@ -43,7 +43,7 @@ func assertJSONContentType(t *testing.T, rec *httptest.ResponseRecorder) {
 	}
 }
 
-func assertError(t *testing.T, rec *httptest.ResponseRecorder, wantStatus int, wantCode string) {
+func assertError(t *testing.T, rec *httptest.ResponseRecorder, wantStatus int, wantCode string) errorResponse {
 	t.Helper()
 	if rec.Code != wantStatus {
 		t.Errorf("status = %d, want %d (body: %s)", rec.Code, wantStatus, rec.Body)
@@ -60,6 +60,7 @@ func assertError(t *testing.T, rec *httptest.ResponseRecorder, wantStatus int, w
 	if resp.Error.Message == "" {
 		t.Error("error message is empty")
 	}
+	return resp
 }
 
 func TestCalculateSuccess(t *testing.T) {
@@ -112,37 +113,41 @@ func TestCalculateAcceptsContentTypeWithCharset(t *testing.T) {
 
 func TestCalculateErrors(t *testing.T) {
 	tests := []struct {
-		name       string
-		body       string
-		wantStatus int
-		wantCode   string
+		name        string
+		body        string
+		wantStatus  int
+		wantCode    string
+		wantMessage string
 	}{
-		{name: "division by zero", body: `{"operation":"divide","a":1,"b":0}`, wantStatus: http.StatusUnprocessableEntity, wantCode: "division_by_zero"},
-		{name: "sqrt of negative", body: `{"operation":"sqrt","a":-9}`, wantStatus: http.StatusUnprocessableEntity, wantCode: "invalid_domain"},
-		{name: "result overflow", body: `{"operation":"multiply","a":1e308,"b":10}`, wantStatus: http.StatusUnprocessableEntity, wantCode: "result_out_of_range"},
+		{name: "division by zero", body: `{"operation":"divide","a":1,"b":0}`, wantStatus: http.StatusUnprocessableEntity, wantCode: "division_by_zero", wantMessage: `cannot divide by zero`},
+		{name: "sqrt of negative", body: `{"operation":"sqrt","a":-9}`, wantStatus: http.StatusUnprocessableEntity, wantCode: "invalid_domain", wantMessage: `the result is not a real number`},
+		{name: "result overflow", body: `{"operation":"multiply","a":1e308,"b":10}`, wantStatus: http.StatusUnprocessableEntity, wantCode: "result_out_of_range", wantMessage: `the result is too large to represent`},
 
-		{name: "empty body", body: ``, wantStatus: http.StatusBadRequest, wantCode: "invalid_json"},
-		{name: "broken json", body: `{"operation":"add",`, wantStatus: http.StatusBadRequest, wantCode: "invalid_json"},
-		{name: "not an object", body: `[1,2]`, wantStatus: http.StatusBadRequest, wantCode: "invalid_json"},
-		{name: "trailing data", body: `{"operation":"add","a":1,"b":2}{"x":1}`, wantStatus: http.StatusBadRequest, wantCode: "invalid_json"},
-		{name: "number as string", body: `{"operation":"add","a":"1","b":2}`, wantStatus: http.StatusBadRequest, wantCode: "invalid_field"},
-		{name: "operation as number", body: `{"operation":1,"a":1,"b":2}`, wantStatus: http.StatusBadRequest, wantCode: "invalid_field"},
-		{name: "number out of float64 range", body: `{"operation":"add","a":1e400,"b":2}`, wantStatus: http.StatusBadRequest, wantCode: "invalid_field"},
-		{name: "unknown field", body: `{"operation":"add","a":1,"b":2,"c":3}`, wantStatus: http.StatusBadRequest, wantCode: "unknown_field"},
+		{name: "empty body", body: ``, wantStatus: http.StatusBadRequest, wantCode: "invalid_json", wantMessage: `request body is empty`},
+		{name: "broken json", body: `{"operation":"add",`, wantStatus: http.StatusBadRequest, wantCode: "invalid_json", wantMessage: `request body is not valid JSON`},
+		{name: "not an object", body: `[1,2]`, wantStatus: http.StatusBadRequest, wantCode: "invalid_json", wantMessage: `request body must be a JSON object`},
+		{name: "trailing data", body: `{"operation":"add","a":1,"b":2}{"x":1}`, wantStatus: http.StatusBadRequest, wantCode: "invalid_json", wantMessage: `request body must contain a single JSON object`},
+		{name: "number as string", body: `{"operation":"add","a":"1","b":2}`, wantStatus: http.StatusBadRequest, wantCode: "invalid_field", wantMessage: `field "a" must be a finite number`},
+		{name: "operation as number", body: `{"operation":1,"a":1,"b":2}`, wantStatus: http.StatusBadRequest, wantCode: "invalid_field", wantMessage: `field "operation" must be a string`},
+		{name: "number out of float64 range", body: `{"operation":"add","a":1e400,"b":2}`, wantStatus: http.StatusBadRequest, wantCode: "invalid_field", wantMessage: `field "a" must be a finite number`},
+		{name: "unknown field", body: `{"operation":"add","a":1,"b":2,"c":3}`, wantStatus: http.StatusBadRequest, wantCode: "unknown_field", wantMessage: `unknown field "c"`},
 
-		{name: "missing operation", body: `{"a":1,"b":2}`, wantStatus: http.StatusBadRequest, wantCode: "missing_field"},
-		{name: "missing a", body: `{"operation":"add","b":2}`, wantStatus: http.StatusBadRequest, wantCode: "missing_field"},
-		{name: "null a", body: `{"operation":"add","a":null,"b":2}`, wantStatus: http.StatusBadRequest, wantCode: "missing_field"},
-		{name: "missing b for binary", body: `{"operation":"divide","a":1}`, wantStatus: http.StatusBadRequest, wantCode: "missing_field"},
-		{name: "b for unary", body: `{"operation":"sqrt","a":4,"b":2}`, wantStatus: http.StatusBadRequest, wantCode: "unexpected_operand"},
-		{name: "unknown operation", body: `{"operation":"modulo","a":1,"b":2}`, wantStatus: http.StatusBadRequest, wantCode: "unknown_operation"},
+		{name: "missing operation", body: `{"a":1,"b":2}`, wantStatus: http.StatusBadRequest, wantCode: "missing_field", wantMessage: `field "operation" is required`},
+		{name: "missing a", body: `{"operation":"add","b":2}`, wantStatus: http.StatusBadRequest, wantCode: "missing_field", wantMessage: `field "a" is required`},
+		{name: "null a", body: `{"operation":"add","a":null,"b":2}`, wantStatus: http.StatusBadRequest, wantCode: "missing_field", wantMessage: `field "a" is required`},
+		{name: "missing b for binary", body: `{"operation":"divide","a":1}`, wantStatus: http.StatusBadRequest, wantCode: "missing_field", wantMessage: `field "b" is required for operation "divide"`},
+		{name: "b for unary", body: `{"operation":"sqrt","a":4,"b":2}`, wantStatus: http.StatusBadRequest, wantCode: "unexpected_operand", wantMessage: `operation "sqrt" takes a single operand, remove field "b"`},
+		{name: "unknown operation", body: `{"operation":"modulo","a":1,"b":2}`, wantStatus: http.StatusBadRequest, wantCode: "unknown_operation", wantMessage: `unknown operation "modulo"`},
 
-		{name: "body too large", body: `{"operation":"add",` + strings.Repeat(" ", 5000) + `"a":1,"b":2}`, wantStatus: http.StatusRequestEntityTooLarge, wantCode: "request_too_large"},
+		{name: "body too large", body: `{"operation":"add",` + strings.Repeat(" ", 5000) + `"a":1,"b":2}`, wantStatus: http.StatusRequestEntityTooLarge, wantCode: "request_too_large", wantMessage: `request body must not exceed 4096 bytes`},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assertError(t, postJSON(t, tt.body), tt.wantStatus, tt.wantCode)
+			resp := assertError(t, postJSON(t, tt.body), tt.wantStatus, tt.wantCode)
+			if resp.Error.Message != tt.wantMessage {
+				t.Errorf("error message = %q, want %q", resp.Error.Message, tt.wantMessage)
+			}
 		})
 	}
 }

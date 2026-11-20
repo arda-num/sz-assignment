@@ -13,7 +13,10 @@ import (
 	"github.com/arda-num/sz-assignment/backend/internal/calculator"
 )
 
-const maxBodyBytes = 4 << 10
+const (
+	maxBodyBytes       = 4 << 10
+	unknownFieldPrefix = "json: unknown field "
+)
 
 type calculateRequest struct {
 	Operation calculator.Operation `json:"operation"`
@@ -91,15 +94,23 @@ func decodeError(err error) *apiError {
 		return newAPIError(http.StatusBadRequest, "invalid_json", "request body must be a JSON object")
 	case errors.As(err, &typeErr):
 		return newAPIError(http.StatusBadRequest, "invalid_field",
-			fmt.Sprintf("field %q must be a valid %s", typeErr.Field, typeErr.Type))
+			fmt.Sprintf("field %q must be %s", typeErr.Field, expectedType(typeErr.Field)))
 	// encoding/json has no typed error for unknown fields; matching the message is the documented workaround.
-	case strings.HasPrefix(err.Error(), "json: unknown field "):
-		return newAPIError(http.StatusBadRequest, "unknown_field", strings.TrimPrefix(err.Error(), "json: "))
+	case strings.HasPrefix(err.Error(), unknownFieldPrefix):
+		return newAPIError(http.StatusBadRequest, "unknown_field",
+			"unknown field "+strings.TrimPrefix(err.Error(), unknownFieldPrefix))
 	case errors.Is(err, io.EOF):
 		return newAPIError(http.StatusBadRequest, "invalid_json", "request body is empty")
 	default:
 		return newAPIError(http.StatusBadRequest, "invalid_json", "request body is not valid JSON")
 	}
+}
+
+func expectedType(field string) string {
+	if field == "operation" {
+		return "a string"
+	}
+	return "a finite number"
 }
 
 func validate(req calculateRequest) *apiError {
@@ -131,12 +142,12 @@ func validate(req calculateRequest) *apiError {
 func calculationError(err error) *apiError {
 	switch {
 	case errors.Is(err, calculator.ErrDivisionByZero):
-		return newAPIError(http.StatusUnprocessableEntity, "division_by_zero", err.Error())
+		return newAPIError(http.StatusUnprocessableEntity, "division_by_zero", "cannot divide by zero")
 	case errors.Is(err, calculator.ErrInvalidDomain):
-		return newAPIError(http.StatusUnprocessableEntity, "invalid_domain", err.Error())
+		return newAPIError(http.StatusUnprocessableEntity, "invalid_domain", "the result is not a real number")
 	case errors.Is(err, calculator.ErrResultOutOfRange):
-		return newAPIError(http.StatusUnprocessableEntity, "result_out_of_range", err.Error())
+		return newAPIError(http.StatusUnprocessableEntity, "result_out_of_range", "the result is too large to represent")
 	default:
-		return newAPIError(http.StatusInternalServerError, "internal_error", "internal server error")
+		return internalError()
 	}
 }

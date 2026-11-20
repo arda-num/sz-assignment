@@ -207,3 +207,21 @@ yes now it works. lets merge PR 6 now
 ```
 lets also add a video recording in the readme of the application with some use cases. after doing all, record the application and put it inside readme. THen I will review
 ```
+
+## 15. Merge PR 7 and review
+
+```
+lets merge it. after that. lets review the code we have written again. are the tests enough? do we have enough coverage? did we address all the feature requests etc.
+```
+
+## 16. Review follow-ups
+
+```
+about the enter on a focused key, we dont need that behviour. it is OK not to fix that. unnecessary. 
+
+Lets fix the API error messages leak problem. no API should leak the actual traceback error message we had in the backend. We should return proper error messages.
+
+In another PR, add missing handler and missing behaviours tests. and fix the large number show invented digits problem.
+
+In total 2 PRs. One for API leak problem, other for tests and FE minor fix
+```
