@@ -1,6 +1,7 @@
 package httpapi_test
 
 import (
+	"bytes"
 	"encoding/json"
 	"log/slog"
 	"net/http"
@@ -199,5 +200,45 @@ func TestHealth(t *testing.T) {
 	assertJSONContentType(t, rec)
 	if got, want := strings.TrimSpace(rec.Body.String()), `{"status":"ok"}`; got != want {
 		t.Errorf("body = %s, want %s", got, want)
+	}
+}
+
+func TestCalculatePowerDomainErrors(t *testing.T) {
+	tests := []struct {
+		name     string
+		body     string
+		wantCode string
+	}{
+		{name: "zero to a negative power", body: `{"operation":"power","a":0,"b":-1}`, wantCode: "division_by_zero"},
+		{name: "negative base with fractional exponent", body: `{"operation":"power","a":-8,"b":0.3333333333333333}`, wantCode: "invalid_domain"},
+		{name: "power overflow", body: `{"operation":"power","a":10,"b":400}`, wantCode: "result_out_of_range"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assertError(t, postJSON(t, tt.body), http.StatusUnprocessableEntity, tt.wantCode)
+		})
+	}
+}
+
+func TestRequestsAreLogged(t *testing.T) {
+	var logs bytes.Buffer
+	handler := httpapi.NewHandler(slog.New(slog.NewJSONHandler(&logs, nil)))
+
+	req := httptest.NewRequest(http.MethodPost, calculatePath, strings.NewReader(`{"operation":"divide","a":1,"b":0}`))
+	req.Header.Set("Content-Type", "application/json")
+	handler.ServeHTTP(httptest.NewRecorder(), req)
+
+	var entry struct {
+		Msg    string `json:"msg"`
+		Method string `json:"method"`
+		Path   string `json:"path"`
+		Status int    `json:"status"`
+	}
+	if err := json.Unmarshal(logs.Bytes(), &entry); err != nil {
+		t.Fatalf("decoding log entry %q: %v", logs.String(), err)
+	}
+	if entry.Msg != "request" || entry.Method != http.MethodPost || entry.Path != calculatePath || entry.Status != http.StatusUnprocessableEntity {
+		t.Errorf("log entry = %+v, want request POST %s 422", entry, calculatePath)
 	}
 }
