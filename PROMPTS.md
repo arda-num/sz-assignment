@@ -148,3 +148,15 @@ ok great. The frontend foundations look OK to me. lets continue. you can merge P
 ```
 
 Answers to the keypad questions: only ⌫ backspace (no ±), a single AC key, a second `=` does nothing, and the next key starts fresh after an error.
+
+## 7. PR 4 review
+
+```
+I left a comment in the PR4. OTT look great. please address the comment and come again for review
+```
+
+Review comment on `frontend/src/hooks/calculatorState.ts`:
+
+```
+this file is not a hook, please move it to another folder named like `state` instead of hooks. also move the test.
+```
